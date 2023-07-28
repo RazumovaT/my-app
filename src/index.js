@@ -1,4 +1,4 @@
-import { React } from "react";
+import { createElement, React } from "react";
 import { Component } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -16,6 +16,48 @@ class AppElements extends Component {
   state = {
     data: [],
     active: [],
+    completed: [],
+    activeFilter: "All",
+  };
+
+  setActiveFilter = (filterName) => {
+    this.setState({
+      activeFilter: filterName,
+    });
+    switch (filterName) {
+      case "All":
+        this.setState(({ data }) => {
+          return {
+            data: data,
+          };
+        });
+        break;
+      case "Active":
+        this.setState(({ data }) => {
+          const copy = JSON.parse(JSON.stringify(data));
+          const newArr = copy.filter((el) => {
+            if (el.done === false) {
+              createElement(el.label);
+            }
+          });
+
+          return {
+            active: newArr,
+          };
+        });
+        break;
+      case "Completed":
+        this.setState(({ data, active }) => {
+          const copy = JSON.parse(JSON.stringify(data));
+          const newArr = copy.filter((el) => el.done == false);
+          return {
+            active: newArr,
+          };
+        });
+        break;
+      default:
+        break;
+    }
   };
 
   createItem(label) {
@@ -74,11 +116,10 @@ class AppElements extends Component {
   };
   itemCompleted = (id) => {
     this.setState(({ data, completed }) => {
-      debugger;
       const copy = JSON.parse(JSON.stringify(data));
       const newArr = copy.filter((el) => el.done);
       return {
-        active: newArr,
+        completed: newArr,
       };
     });
   };
@@ -97,8 +138,8 @@ class AppElements extends Component {
         />
         <Footer
           itemsLeft={itemsLeft}
-          onItemActive={this.itemActive}
-          onItemCompleted={this.itemCompleted}
+          activeFilter={this.state.activeFilter}
+          setActiveFilter={this.setActiveFilter}
         />
       </div>
     );

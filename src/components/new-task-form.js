@@ -22,9 +22,7 @@ export default class NewTaskForm extends Component {
       classCompleted += "completed";
     }
 
-    // if (!done) {
-    //   onItemActive();
-    // }
+   
 
     return (
       <li className={classCompleted} onClick={onItemDone}>
