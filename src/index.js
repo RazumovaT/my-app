@@ -1,4 +1,4 @@
-import { createElement, React } from "react";
+import { React } from "react";
 import { Component } from "react";
 import { createRoot } from "react-dom/client";
 
@@ -15,8 +15,7 @@ class AppElements extends Component {
 
   state = {
     data: [],
-    active: [],
-    completed: [],
+    filteredArr: [],
     activeFilter: "All",
   };
 
@@ -28,30 +27,25 @@ class AppElements extends Component {
       case "All":
         this.setState(({ data }) => {
           return {
-            data: data,
+            filteredArr: data,
           };
         });
         break;
       case "Active":
         this.setState(({ data }) => {
           const copy = JSON.parse(JSON.stringify(data));
-          const newArr = copy.filter((el) => {
-            if (el.done === false) {
-              createElement(el.label);
-            }
-          });
-
+          const filteredArr = copy.filter((el) => !el.done);
           return {
-            active: newArr,
+            filteredArr: filteredArr,
           };
         });
         break;
       case "Completed":
-        this.setState(({ data, active }) => {
+        this.setState(({ data }) => {
           const copy = JSON.parse(JSON.stringify(data));
-          const newArr = copy.filter((el) => el.done == false);
+          const filteredArr = copy.filter((el) => el.done);
           return {
-            active: newArr,
+            filteredArr: filteredArr,
           };
         });
         break;
@@ -59,23 +53,29 @@ class AppElements extends Component {
         break;
     }
   };
-
   createItem(label) {
     return {
       label,
       done: false,
       active: true,
+      isEdit: false,
       id: this.minId++,
+      createdAt: Date.now(),
     };
   }
+  
 
   addItem = (text) => {
+    if (!text) {
+      return;
+    }
     const newItem = this.createItem(text);
-
     this.setState(({ data }) => {
-      const newArr = [...data, newItem];
+      const copy = JSON.parse(JSON.stringify(data));
+      const newArr = [...copy, newItem];
       return {
         data: newArr,
+        filteredArr: newArr,
       };
     });
   };
@@ -88,6 +88,7 @@ class AppElements extends Component {
         .concat(JSON.parse(JSON.stringify(data)).slice(index + 1));
       return {
         data: newArr,
+        filteredArr: newArr,
       };
     });
   };
@@ -101,25 +102,32 @@ class AppElements extends Component {
       );
       return {
         data: newArr,
+        filteredArr: newArr,
       };
     });
   };
 
-  itemActive = (id) => {
-    this.setState(({ data, active }) => {
+  itemEdit = (id) => {
+    this.setState(({ data }) => {
       const copy = JSON.parse(JSON.stringify(data));
-      const newArr = copy.filter((el) => el.done == false);
+
+      let newArr = copy.map((el) =>
+        el.id === id ? { ...el, isEdit: !el.isEdit } : { ...el }
+      );
       return {
-        active: newArr,
+        data: newArr,
+        filteredArr: newArr,
       };
     });
   };
-  itemCompleted = (id) => {
-    this.setState(({ data, completed }) => {
+
+  clearCompleted = () => {
+    this.setState(({ data }) => {
       const copy = JSON.parse(JSON.stringify(data));
-      const newArr = copy.filter((el) => el.done);
+      const newArr = copy.filter((el) => !el.done);
       return {
-        completed: newArr,
+        data: newArr,
+        filteredArr: newArr,
       };
     });
   };
@@ -131,15 +139,19 @@ class AppElements extends Component {
       <div className="todoapp">
         <Header onItemAdded={this.addItem} />
         <ToDoList
-          todos={this.state.data}
+          todos={this.state.filteredArr}
           onDeleted={this.deleteItem}
           onItemDone={this.itemDone}
-          onItemActive={this.itemActive}
+          onItemEdit={this.itemEdit}
+          clearCompleted={this.clearCompleted}
+          onItemAdded={this.addItem}
+         
         />
         <Footer
           itemsLeft={itemsLeft}
           activeFilter={this.state.activeFilter}
           setActiveFilter={this.setActiveFilter}
+          clearCompleted={this.clearCompleted}
         />
       </div>
     );

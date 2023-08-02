@@ -1,5 +1,7 @@
 import { Component, React } from "react";
-import { useState } from "react";
+import PropTypes from "prop-types";
+
+let propTypes = require("prop-types");
 
 export default class Header extends Component {
   constructor(props) {
@@ -8,6 +10,14 @@ export default class Header extends Component {
       label: "",
     };
   }
+
+  static defaultProps = {
+    onItemAdded: () => {},
+  };
+
+  static propTypes = {
+    onItemAdded: propTypes.func,
+  };
 
   onInputChange = (e) => {
     e.preventDefault();
