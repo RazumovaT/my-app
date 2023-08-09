@@ -63,7 +63,6 @@ class AppElements extends Component {
       createdAt: Date.now(),
     };
   }
-  
 
   addItem = (text) => {
     if (!text) {
@@ -96,7 +95,6 @@ class AppElements extends Component {
   itemDone = (id) => {
     this.setState(({ data }) => {
       const copy = JSON.parse(JSON.stringify(data));
-
       let newArr = copy.map((el) =>
         el.id === id ? { ...el, done: !el.done } : { ...el }
       );
@@ -132,6 +130,21 @@ class AppElements extends Component {
     });
   };
 
+  onItemSubmit = (id, text) => {
+    this.setState(({ data }) => {
+      const copy = JSON.parse(JSON.stringify(data));
+      let newArr = copy.map((el) =>
+        el.id == id
+          ? { ...el, label: text, isEdit: !el.isEdit, done: !el.done }
+          : { ...el }
+      );
+      return {
+        data: newArr,
+        filteredArr: newArr,
+      };
+    });
+  };
+
   render() {
     const itemsLeft = this.state.data.filter((el) => !el.done).length;
 
@@ -145,7 +158,7 @@ class AppElements extends Component {
           onItemEdit={this.itemEdit}
           clearCompleted={this.clearCompleted}
           onItemAdded={this.addItem}
-         
+          onItemSubmit={this.onItemSubmit}
         />
         <Footer
           itemsLeft={itemsLeft}
